@@ -5,9 +5,9 @@ const dbname = "TodoApp"
 
 MongoClient.connect(url,(error, client) => {
 
-    if (error) { return console.log("Unable to connect mongodb"); }
+    if (error) { return console.log("Unable to connect mongodb") }
 
-    console.log("Connected to Mongodb");
+    console.log("Connected to Mongodb")
 
     const db = client.db(dbname)
 
