@@ -9,7 +9,7 @@ let app = express()
 
 app.use(bodyParser.json())
 
-
+// Create Todo
 app.post('/todos', (request, response) => {
     let todo = new Todo({
         text: request.body.text
@@ -21,6 +21,7 @@ app.post('/todos', (request, response) => {
     })
 })
 
+// Read all Todos
 app.get('/todos', (request, response) => {
     Todo.find().then((todos) => {
         response.send(todos)
@@ -29,6 +30,7 @@ app.get('/todos', (request, response) => {
     })
 })
 
+// Read one Todo
 app.get('/todos/:id', (request, response) => {
     let id = request.params.id
     if (!ObjectID.isValid(id)) {
@@ -42,6 +44,24 @@ app.get('/todos/:id', (request, response) => {
         response.send(todo)
     }).catch((e) => {
         return response.status(400).send()
+    })
+})
+
+// Delete Todo
+app.delete('/todos/:id', (request, response) => {
+    let id = request.params.id
+
+    if (!ObjectID.isValid(id)) {
+        return response.status(404).send("Todo not found.")
+    }
+
+    Todo.findByIdAndRemove(id).then((todo) => {
+        if (!todo) {
+            return response.status(404).send("Todo not found.")
+        }
+        response.send("Todo deleted successfully")
+    }).catch((e) => {
+        return response.status(400).send("server error")
     })
 })
 
