@@ -1,4 +1,5 @@
 const {mongoose} = require('./db/mongoose')
+const {ObjectID} = require('mongodb')
 const {Todo} = require('./models/Todo')
 const {User} = require('./models/User')
 const express = require('express')
@@ -25,6 +26,22 @@ app.get('/todos', (request, response) => {
         response.send(todos)
     }, (e) => {
         response.status(400).send(todos)
+    })
+})
+
+app.get('/todos/:id', (request, response) => {
+    let id = request.params.id
+    if (!ObjectID.isValid(id)) {
+        return response.status(404).send()
+    }
+
+    Todo.findById(id).then((todo) => {
+        if (!todo) {
+            return response.status(404).send()
+        }
+        response.send(todo)
+    }).catch((e) => {
+        return response.status(400).send()
     })
 })
 
