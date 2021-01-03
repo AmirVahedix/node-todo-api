@@ -2,8 +2,11 @@ const {mongoose} = require('./db/mongoose')
 const {ObjectID} = require('mongodb')
 const {Todo} = require('./models/Todo')
 const {User} = require('./models/User')
+const _ = require('lodash')
 const express = require('express')
 const bodyParser = require('body-parser')
+
+mongoose.set('useFindAndModify', false);
 
 let app = express()
 
@@ -65,6 +68,31 @@ app.delete('/todos/:id', (request, response) => {
     })
 })
 
+// Update Todo
+app.patch('/todos/:id', (request, response) => {
+    let id = request.params.id
+    let body = _.pick(request.body, ['text', 'completed'])
+
+    if (!ObjectID.isValid(id)) {
+        return response.status(404).send("Todo not found.")
+    }
+
+    if (_.isBoolean(body.completed) && body.completed) {
+        body.completed_at = new Date().getTime()
+    }else{
+        body.completed = false
+        body.completed_at = null
+    }
+
+    Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
+        if (!todo) {
+            return response.status(404).send("Todo not found")
+        }
+        response.send(todo)
+    }).catch((e) => {
+        response.status(400).send("Server Error")
+    })
+})
 
 app.listen(3000, () => {
     console.log("listening on port 3000...");
