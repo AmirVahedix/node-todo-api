@@ -99,11 +99,15 @@ app.post('/users', (request, response) => {
     let body = _.pick(request.body, ['email', 'password'])
     let user = new User(body)
 
-    user.save().then((user) => {
-        return response.send(user)
-    }).catch((e) => {
-        return response.status(400).send(e)
+    user.save().then(() => {
+        return user.generateAuthToken()
     })
+    .then((token)=>{
+        response.header('x-auth', token).send(user)
+    })
+    // .catch((e) => {
+    //     response.status(400).send(e)
+    // })
 })
 
 app.listen(3000, () => {
