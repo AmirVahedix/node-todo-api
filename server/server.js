@@ -5,6 +5,7 @@ const {User} = require('./models/User')
 const _ = require('lodash')
 const express = require('express')
 const bodyParser = require('body-parser')
+const {authenticate} = require('./middlewares/authenticate')
 
 mongoose.set('useFindAndModify', false);
 
@@ -105,9 +106,15 @@ app.post('/users', (request, response) => {
     .then((token)=>{
         response.header('x-auth', token).send(user)
     })
-    // .catch((e) => {
-    //     response.status(400).send(e)
-    // })
+    .catch((e) => {
+        response.status(400).send(e)
+    })
+})
+
+
+// User Profile
+app.get('/users/profile', authenticate, (req, res) => {
+    res.send(req.user)
 })
 
 app.listen(3000, () => {
