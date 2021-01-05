@@ -117,6 +117,31 @@ app.get('/users/profile', authenticate, (req, res) => {
     res.send(req.user)
 })
 
+// User Login
+app.post('/users/login', (req, res) => {
+    let body = _.pick(req.body, ['email', 'password'])
+
+    User.findByCredentials(body.email, body.password).then((user) => {
+        return user.generateAuthToken().then((token) => {
+            res.header('x-auth', token).send(user)
+        })
+    })
+    .catch((err) => {
+        res.status(400).send()
+    })
+})
+
+// User Logout
+app.post('/users/logout', authenticate, (req, res) => {
+    req.user.removeToken(req.headers['x-auth']).then(()=>{
+        res.status(200).send()
+    })  
+    .catch((err) => {
+        res.status(400).send()
+    })
+})
+
+
 app.listen(3000, () => {
     console.log("listening on port 3000...");
 })
